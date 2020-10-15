@@ -3,9 +3,11 @@ package configv3
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 // WriteConfig creates the .cf directory and then writes the config.json. The
@@ -44,6 +46,14 @@ func (c *Config) WriteConfig() error {
 		return err
 	}
 
+	for i := 0; i < 5; i++ {
+		if err := os.Rename(tempConfigFileName, ConfigFilePath()); err == nil {
+			return nil
+		}
+
+		time.Sleep(c.WriteRetryTimeout())
+		log.Println("Retrying to write config file.")
+	}
 	return os.Rename(tempConfigFileName, ConfigFilePath())
 }
 

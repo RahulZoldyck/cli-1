@@ -8,23 +8,24 @@ import (
 
 // EnvOverride represents all the environment variables read by the CF CLI
 type EnvOverride struct {
-	BinaryName       string
-	CFColor          string
-	CFDialTimeout    string
-	CFHome           string
-	CFLogLevel       string
-	CFPassword       string
-	CFPluginHome     string
-	CFStagingTimeout string
-	CFStartupTimeout string
-	CFTrace          string
-	CFUsername       string
-	DockerPassword   string
-	Experimental     string
-	ForceTTY         string
-	HTTPSProxy       string
-	Lang             string
-	LCAll            string
+	BinaryName        string
+	CFColor           string
+	CFDialTimeout     string
+	CFHome            string
+	CFLogLevel        string
+	CFPassword        string
+	CFPluginHome      string
+	CFStagingTimeout  string
+	CFStartupTimeout  string
+	CFTrace           string
+	CFUsername        string
+	DockerPassword    string
+	Experimental      string
+	ForceTTY          string
+	HTTPSProxy        string
+	Lang              string
+	LCAll             string
+	WriteRetryTimeout string
 }
 
 // BinaryName returns the running name of the CF CLI
@@ -142,4 +143,16 @@ func (config *Config) StartupTimeout() time.Duration {
 	}
 
 	return DefaultStartupTimeout
+}
+
+func (config *Config) WriteRetryTimeout() time.Duration {
+	if config.ENV.WriteRetryTimeout != "" {
+		timeoutInMilliSec, err := strconv.ParseFloat(config.ENV.CFStartupTimeout, 64)
+		if err == nil {
+			return time.Duration(timeoutInMilliSec) * time.Millisecond
+		}
+	}
+
+	// TODO: 172734111 Change this to constant
+	return 50 * time.Millisecond
 }
